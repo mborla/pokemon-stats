@@ -1,1 +1,568 @@
-<h1>Hello world</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon stats</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    
+    <link href="index.css" type="text/css" rel="stylesheet">
+    
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+</head>
+
+<body class="d-flex h-100 text-center">    
+    <div class="cover-container d-flex w-100 h-100 p-2 mx-auto flex-column">   
+      <main class="px-3">
+        <h1>Pokemon stats</h1>
+        <p class="lead">Choose a Pokemon</p>
+        <div class="row align-items-center" id="main">
+            <div class="col-md-4 offset-md-4">
+                <select class="form-select" id="pokemon-list" aria-label="select"></select>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-6" id="radar-chart"></div>
+            <div class="col-md-6" id="image"></div>
+        </div>
+        <div id="footer">
+            <a type="button" data-bs-toggle="modal" data-bs-target="#legend">Color legend</a>
+            <a type="button" data-bs-toggle="modal" data-bs-target="#guide">Guide</button>
+            <a type="button" data-bs-toggle="modal" data-bs-target="#dataset">Dataset</a>
+        </div>
+      </main>
+    </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="legend" tabindex="-1" aria-labelledby="legendLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="legendLabel">Color Legend</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row h-100">
+                <div class="col-md-4 ms-auto" id="legend1"></div>
+                <div class="col-md-4 ms-auto" id="legend2"></div>
+                <div class="col-md-4 ms-auto" id="legend3"></div>                
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="dataset" tabindex="-1" aria-labelledby="info" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5">Dataset info</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <a href="https://www.kaggle.com/datasets/abcsds/pokemon">Dataset</a><br>
+            <a href="https://www.kaggle.com/datasets/7260c3f0eec6497ea7334bf72aa5b689d5f0d994f5f7e8e8cb3417a98d438d5f">Images dataset</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="guide" tabindex="-1" aria-labelledby="info" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5">Guide</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Hello, choose a Pokemon to view its characteristics! <br>
+            Here's what information you'll find:<br>
+            <ul>
+                <li><strong>Name</strong>: name of each pokemon</li>
+                <li><strong>Type 1</strong>: each pokemon has a type, this determines weakness/resistance to attacks</li>
+                <li><strong>Type 2</strong>: some pokemon are dual type and have 2</li>
+                <li><strong>HP</strong>: hit points, or health, defines how much damage a pokemon can withstand before fainting</li>
+                <li><strong>Attack</strong>: the base modifier for normal attacks (eg. Scratch, Punch)</li>
+                <li><strong>Defense</strong>: the base damage resistance against normal attacks</li>
+                <li><strong>SP Atk</strong>: special attack, the base modifier for special attacks (e.g. fire blast, bubble beam)</li>
+                <li><strong>SP Def</strong>: the base damage resistance against special attacks</li>
+                <li><strong>Speed</strong>: determines which pokemon attacks first each round</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+
+    var width = 400;
+    var height = 400;
+
+    var size = Math.min( window.innerWidth, window.innerHeight, 600 )
+
+    var colors = {
+        'Bug': '#A8B820',
+        'Dark': '#705848',
+        'Dragon': '#7038F8',
+        'Electric': '#F8D030',
+        'Fairy': '#EE99AC',
+        'Fighting': '#C03028',
+        'Fire': '#F08030',
+        'Flying': '#A890F0',
+        'Ghost': '#705898',
+        'Grass': '#78C850',
+        'Ground': '#E0C068',
+        'Ice': '#98D8D8',
+        'Normal': '#A8A878',
+        'Poison': '#A040A0',
+        'Psychic': '#F85888',
+        'Rock': '#B8A038',
+        'Steel': '#B8B8D0',
+        'Water': '#6890F0',
+    }
+    var colors_legend_1 = [
+        {
+            type: 'Bug',
+            color: '#A8B820',
+        },
+        {
+            type: 'Dark',
+            color: '#705848',
+        },
+        {
+            type: 'Dragon',
+            color: '#7038F8',
+        },
+        {
+            type: 'Eletric',
+            color: '#F8D030',
+        },
+        {
+            type: 'Fairy',
+            color: '#EE99AC',
+        },
+        {
+            type: 'Fighting',
+            color: '#C03028',
+        },
+
+    ]
+
+    var colors_legend_2 = [
+        {
+            type: 'Fire',
+            color: '#F08030',
+        },
+        {
+            type: 'Flying',
+            color: '#A890F0',
+        },
+        {
+            type: 'Ghost',
+            color: '#705898',
+        },
+        {
+            type: 'Grass',
+            color: '#78C850',
+        },
+        {
+            type: 'Ground',
+            color: '#E0C068',
+        },
+        {
+            type: 'Ice',
+            color: '#98D8D8',
+        },
+    ]
+
+    var colors_legend_3 = [
+        {
+            type: 'Normal',
+            color: '#A8A878',
+        },
+        {
+            type: 'Poison',
+            color: '#A040A0',
+        },
+        {
+            type: 'Psychic',
+            color: '#F85888',
+        },
+        {
+            type: 'Rock',
+            color: '#B8A038',
+        },
+        {
+            type: 'Steel',
+            color: '#B8B8D0',
+        },
+        {
+            type: 'Water',
+            color: '#6890F0',
+        },
+    ]
+    
+    var svg = d3.select("#radar-chart")
+                .append("svg")
+                .attr("width", width) 
+                .attr("height", height) 
+                .attr("viewBox", '0 0 400 400')
+    
+    var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")");
+
+    var features = ['HP', 'Attack', 'Defense', 'Sp_Atk', 'Sp_Def', 'Speed'];
+
+    // load the external data
+    d3.csv("Pokemon.csv").then(function(data) { 
+
+        d3.select("#image")
+          .append("img")
+          .attr("class", "img-fluid")
+          .attr('src', './images/bulbasaur.png')
+        
+        var value = 0;
+        var array = [];
+        var values = {
+            'id': data[value].id,
+            'name': data[value].Name,
+            'Type1': data[value].Type1,
+            'Type2': data[value].Type2,
+            'HP': data[value].HP,
+            'Attack': data[value].Attack,
+            'Defense': data[value].Defense,
+            'Sp_Atk': data[value].Sp_Atk,
+            'Sp_Def': data[value].Sp_Def,
+            'Speed': data[value].Speed,
+        }
+        array.push(values);
+        RadarChart(0, array);
+
+        d3.select("#pokemon-list")
+            .selectAll("option")
+            .data(data)
+            .enter()
+            .append("option")
+            .attr("value", function(d, i){
+                return i
+            })
+            .text(function(d){
+                return d.Name;
+            })
+
+        $('#pokemon-list').select2();
+        $('#pokemon-list').on('select2:select', function (e) {
+            var value = e.params.data.id;
+            var array = [];
+            var values = {
+                'id': data[value].id,
+                'name': data[value].Name,
+                'Type1': data[value].Type1,
+                'Type2': data[value].Type2,
+                'HP': data[value].HP,
+                'Attack': data[value].Attack,
+                'Defense': data[value].Defense,
+                'Sp_Atk': data[value].Sp_Atk,
+                'Sp_Def': data[value].Sp_Def,
+                'Speed': data[value].Speed,
+            }
+
+            array.push(values);
+
+            RadarChart(this.value, array);
+            image(values.name)
+        });
+
+    });
+
+    var radialScale = d3.scaleLinear()
+                        .domain([0, 300])
+                        .range([0, 150]);
+
+    function image(name) {
+        d3.select(".img-fluid")
+          .attr('src', './images/'+name.toLowerCase()+'.png')
+    }
+
+    function RadarChart(id, array) {
+        let ticks = [50, 100, 150, 200, 250, 300];
+
+        g.selectAll("circle")
+            .data(ticks)
+            .enter()
+            .append("circle")
+            .attr("cx", width / 2)
+            .attr("cy", height / 2)
+            .attr("fill", "none")
+            .attr("stroke", "#838383")
+            .attr("r", d => radialScale(d))
+
+        g.selectAll(".ticklabel")
+            .data(ticks)
+            .enter()
+            .append("text")
+            .attr("class", "ticklabel")
+            .attr("x", width / 2 + 5)
+            .attr("y", d => height / 2 - radialScale(d) - 5)
+            .text(d => d.toString())
+            .attr("font-size", "10px")
+
+        let featureData = features.map((f, i) => {
+            let angle = (Math.PI / 2) + (2 * Math.PI * i / features.length);
+            return {
+                "name": f,
+                "angle": angle,
+                "line_coord": angleToCoordinate(angle, 300),
+                "label_coord": angleToCoordinate2(angle, 300)
+            };
+        });
+
+        // draw axis line
+        g.selectAll("line")
+            .data(featureData)
+            .enter()
+            .append("line")
+            .attr("x1", width / 2)
+            .attr("y1", height / 2)
+            .attr("x2", d => d.line_coord.x)
+            .attr("y2", d => d.line_coord.y)
+            .attr("stroke","#838383")
+
+        // draw axis label
+        g.selectAll(".axislabel")
+            .data(featureData)                
+            .enter()
+            .append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", d => d.label_coord.x)
+            .attr("y", d => d.label_coord.y)
+            .text(d => d.name)
+            .attr("color","black")
+            .attr("class", "axislabel")
+
+       
+        let line = d3.line()
+            .x(d => d.x)
+            .y(d => d.y);
+
+        // draw the path element
+        g.selectAll("path")
+            .data(array)
+            .datum(d => getPathCoordinates(d))
+            .join(
+                enter => enter.append("path")
+                    .datum(d => getPathCoordinates(d))
+                    .attr("d", line)
+                    .style("fill", "url(#linear-gradient)")
+                    .attr("stroke-opacity", 1)
+                    .attr("opacity", 0.95),
+                update => update
+                    .transition()
+                    .duration(750)
+                    .attr("d", line)
+            )
+            .on("mousemove", (d, i) => {
+
+                if(array[0]['Type2'] != ''){
+                    tip.html(
+                    "<p style='color:"+colors[array[0]['Type1']]+"'><strong>Type 1: "+array[0]['Type1']+"</strong></p>"+
+                    "<p style='color:"+colors[array[0]['Type2']]+"'><strong>Type 2: "+array[0]['Type2']+"</strong></p>"+
+                    "<p><strong>Attack</strong>: "+array[0]['Attack']+"</p>"+
+                    "<p><strong>Defense</strong>: "+array[0]['Defense']+"</p>"+
+                    "<p><strong>Special attack</strong>: "+array[0]['Sp_Atk']+"</p>"+
+                    "<p><strong>Special defense</strong>: "+array[0]['Sp_Def']+"</p>"+
+                    "<p><strong>Hit point</strong>: "+array[0]['HP']+"</p>"+
+                    "<p><strong>Speed</strong>: "+array[0]['Speed']+"</p>"
+                    )
+                    .style("left", event.pageX + 10 + "px")
+                    .style("top", event.pageY + "px")
+                    .style("opacity", 0.9)
+                }else{
+                    tip.html(
+                    "<p style='color:"+colors[array[0]['Type1']]+"'><strong>Type: "+array[0]['Type1']+"</strong></p>"+
+                    "<p><strong>Attack</strong>: "+array[0]['Attack']+"</p>"+
+                    "<p><strong>Defense</strong>: "+array[0]['Defense']+"</p>"+
+                    "<p><strong>Special attack</strong>: "+array[0]['Sp_Atk']+"</p>"+
+                    "<p><strong>Special defense</strong>: "+array[0]['Sp_Def']+"</p>"+
+                    "<p><strong>Hit point</strong>: "+array[0]['HP']+"</p>"+
+                    "<p><strong>Speed</strong>: "+array[0]['Speed']+"</p>"
+                    )
+                    .style("left", event.pageX + 10 + "px")
+                    .style("top", event.pageY + "px")
+                    .style("opacity", 0.9)
+                }
+
+            }).on("mouseout", () => {
+                tip.style("opacity", 0)
+            });
+
+        var defs = svg.append("defs");
+        var linearGradient = defs.append("linearGradient")
+            .attr("id", "linear-gradient");
+
+        linearGradient
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "100%");
+        
+        linearGradient.append("stop")
+            .attr("class", "color1")
+            .data(array)
+            .attr("offset", "0%")
+            .attr("stop-color", function(d){
+                return colors[d.Type1]
+            });
+        
+        d3.selectAll(".color1")
+          .data(array)
+          .transition()
+          .attr("stop-color", function(d){
+            return colors[d.Type1]
+          });
+
+
+        linearGradient.append("stop")
+            .attr("class", "color2")
+            .data(array)
+            .attr("offset", "100%")
+            .attr("stop-color", function(d){
+                if(d.Type2 == ''){
+                    return colors[d.Type1]
+                } else {
+                    return colors[d.Type2]
+                }                
+            });
+        
+        d3.selectAll(".color2")
+          .data(array)
+          .transition()
+          .attr("stop-color", function(d){
+            if(d.Type2 == ''){
+                return colors[d.Type1]
+            } else {
+                return colors[d.Type2]
+            }                
+        });
+    }
+
+    function angleToCoordinate(angle, value){
+        let x = Math.cos(angle) * radialScale(value);
+        let y = Math.sin(angle) * radialScale(value);
+        return {"x": width / 2 + x, "y": height / 2 - y};
+    }
+
+    function angleToCoordinate2(angle, value){
+        let x = Math.cos(angle) * radialScale(value*1.25);
+        let y = Math.sin(angle) * radialScale(value*1.25);
+        return {"x": width / 2 + x, "y": height / 2 - y};
+    }
+
+    function getPathCoordinates(array){
+        let coordinates = [];
+        for (var i = 0; i < features.length; i++){
+            let ft_name = features[i];
+            let angle = (Math.PI / 2) + (2 * Math.PI * i / features.length);
+            coordinates.push(angleToCoordinate(angle, array[ft_name]));
+        }
+        return coordinates;
+    }
+
+    // Legenda
+    var size = 15;
+    var legend1 = d3.select("#legend1")
+                    .append("svg")
+                    .style("width", "100%")
+                    .style("height", "100%");
+
+    legend1.selectAll(".mydots")
+            .data(colors_legend_1)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", function(d,i){ return 0 + i*(size+15)}) 
+            .attr("width", size)
+            .attr("height", size)
+            .style("fill", function(d){ return d.color})
+
+    legend1.selectAll(".mylabels")
+            .data(colors_legend_1)
+            .enter()
+            .append("text")
+                .attr("x", 0 + size*1.2)
+                .attr("y", function(d,i){ return 0 + i*(size+15) + (size/2)}) 
+                .text(function(d){ return d.type})
+                .attr("text-anchor", "left")
+                .style("alignment-baseline", "middle")
+
+    var legend2 = d3.select("#legend2")
+        .append("svg")
+        .style("width", "100%")
+        .style("height", "100%");
+
+    legend2.selectAll(".mydots")
+            .data(colors_legend_2)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", function(d,i){ return 0 + i*(size+15)}) 
+            .attr("width", size)
+            .attr("height", size)
+            .style("fill", function(d){ return d.color})
+
+    legend2.selectAll(".mylabels")
+            .data(colors_legend_2)
+            .enter()
+            .append("text")
+            .attr("x", 0 + size*1.2)
+            .attr("y", function(d,i){ return 0 + i*(size+15) + (size/2)}) 
+            .text(function(d){ return d.type})
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+
+    var legend3 = d3.select("#legend3")
+                    .append("svg")
+                    .style("width", "100%")
+                    .style("height", "100%");
+
+    legend3.selectAll(".mydots")
+            .data(colors_legend_3)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", function(d,i){ return 0 + i*(size+15)}) 
+            .attr("width", size)
+            .attr("height", size)
+            .style("fill", function(d){ return d.color})
+
+    legend3.selectAll(".mylabels")
+            .data(colors_legend_3)
+            .enter()
+            .append("text")
+            .attr("x", 0 + size*1.2)
+            .attr("y", function(d,i){ return 0 + i*(size+15) + (size/2)}) 
+            .text(function(d){ return d.type})
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+
+    // tooltip
+    var tip = d3.select("body")
+                .append("div")
+                .attr("class", "tip")
+                .style("opacity", 0);
+</script>
+</html>
